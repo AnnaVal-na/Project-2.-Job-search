@@ -1,9 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Dict
 
 
 @dataclass
 class Vacancy:
+    """Класс для представления вакансии с валидацией данных"""
+
     __slots__ = ('title', 'url', 'salary_from', 'salary_to', 'description')
     title: str
     url: str
@@ -14,11 +16,13 @@ class Vacancy:
     def __post_init__(self):
         self.__validate_salary()
 
-    def __validate_salary(self):
+    def __validate_salary(self) -> None:
+        """Приватный метод валидации данных о зарплате"""
         if self.salary_from < 0 or self.salary_to < 0:
-            raise ValueError("Salary cannot be negative")
+            raise ValueError("Зарплата не может быть отрицательной")
 
     def __lt__(self, other: 'Vacancy') -> bool:
+        """Сравнение вакансий по минимальной зарплате"""
         return self.salary_from < other.salary_from
 
     def __gt__(self, other: 'Vacancy') -> bool:
@@ -26,6 +30,7 @@ class Vacancy:
 
     @classmethod
     def cast_to_object_list(cls, data: List[Dict]) -> List['Vacancy']:
+        """Преобразование сырых данных в список объектов"""
         vacancies = []
         for item in data:
             salary = item.get('salary', {})
@@ -34,7 +39,6 @@ class Vacancy:
                 url=item['alternate_url'],
                 salary_from=salary.get('from', 0) if salary else 0,
                 salary_to=salary.get('to', 0) if salary else 0,
-                description=item['snippet']['requirement'] or ''
+                description=item['snippet'].get('requirement', '') or ''
             ))
         return vacancies
-    
