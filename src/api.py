@@ -1,32 +1,36 @@
-import requests
 from abc import ABC, abstractmethod
 from typing import Dict, List
+import requests
 
 
 class JobPlatformAPI(ABC):
-    @abstractmethod
-    def connect(self) -> None:
-        pass
+    """Абстрактный класс для работы с API платформ вакансий"""
 
     @abstractmethod
     def get_vacancies(self, query: str, per_page: int = 100) -> List[Dict]:
+        """Получение вакансий по запросу"""
         pass
 
 
 class HeadHunterAPI(JobPlatformAPI):
-    __BASE_URL = "https://api.hh.ru/vacancies"
+    """Класс для работы с API HeadHunter"""
+
+    _BASE_URL = "https://api.hh.ru/vacancies"
 
     def __init__(self):
-        self.__headers = {'User-Agent': 'api-test-agent'}
-        self.__params = {'text': '', 'per_page': 100}
-
-    def connect(self) -> None:
-        response = requests.get(self.__BASE_URL, headers=self.__headers)
-        response.raise_for_status()
+        self._headers = {'User-Agent': 'api-test-agent'}
+        self._params_template = {'text': '', 'per_page': 100}
 
     def get_vacancies(self, query: str, per_page: int = 100) -> List[Dict]:
-        self.__params.update({'text': query, 'per_page': per_page})
-        self.connect()
-        response = requests.get(self.__BASE_URL, params=self.__params, headers=self.__headers)
+        """Получение вакансий с HH.ru"""
+        params = self._params_template.copy()
+        params.update({'text': query, 'per_page': per_page})
+
+        response = requests.get(
+            self._BASE_URL,
+            headers=self._headers,
+            params=params
+        )
+        response.raise_for_status()
+
         return response.json()['items']
-    
