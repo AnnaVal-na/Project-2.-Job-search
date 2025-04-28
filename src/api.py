@@ -8,29 +8,26 @@ class JobPlatformAPI(ABC):
 
     @abstractmethod
     def get_vacancies(self, query: str, per_page: int = 100) -> List[Dict]:
-        """Получение вакансий по запросу"""
         pass
 
 
 class HeadHunterAPI(JobPlatformAPI):
     """Класс для работы с API HeadHunter"""
 
-    _BASE_URL = "https://api.hh.ru/vacancies"
+    BASE_URL = "https://api.hh.ru/vacancies"  # Делаем атрибут публичным
 
     def __init__(self):
         self._headers = {'User-Agent': 'api-test-agent'}
         self._params_template = {'text': '', 'per_page': 100}
 
     def get_vacancies(self, query: str, per_page: int = 100) -> List[Dict]:
-        """Получение вакансий с HH.ru"""
         params = self._params_template.copy()
         params.update({'text': query, 'per_page': per_page})
 
         response = requests.get(
-            self._BASE_URL,
+            self.BASE_URL,
             headers=self._headers,
             params=params
         )
         response.raise_for_status()
-
         return response.json()['items']

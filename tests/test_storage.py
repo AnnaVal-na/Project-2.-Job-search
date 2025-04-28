@@ -2,6 +2,18 @@ import pytest
 from src.storage import JSONStorage
 
 
+def test_read_data_invalid_json(temp_storage):
+    with open(temp_storage._JSONStorage__filename, 'w') as f:
+        f.write("invalid json")
+    assert temp_storage.get_vacancies() == []
+
+
+def test_add_vacancy_empty_file(temp_storage):
+    vacancy = {"title": "Test", "url": "http://example.com"}
+    temp_storage.add_vacancy(vacancy)
+    assert len(temp_storage.get_vacancies()) == 1
+
+
 @pytest.fixture
 def temp_storage(tmp_path):
 
