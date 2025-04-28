@@ -2,6 +2,50 @@ import pytest
 from src.models import Vacancy
 
 
+def test_to_dict():
+    vacancy = Vacancy("Test", "http://example.com", 1000, 2000, "desc")
+    expected = {
+        "title": "Test",
+        "url": "http://example.com",
+        "salary_from": 1000,
+        "salary_to": 2000,
+        "description": "desc"
+    }
+    assert vacancy.to_dict() == expected
+
+def test_cast_to_object_list_no_salary_key():
+    data = [{
+        "name": "Test",
+        "alternate_url": "url",
+        "snippet": {"requirement": ""}
+    }]
+    vacancies = Vacancy.cast_to_object_list(data)
+    assert vacancies[0].salary_from == 0
+    assert vacancies[0].salary_to == 0
+
+
+def test_validate_salary_negative():
+    with pytest.raises(ValueError):
+        Vacancy("Test", "url", -100, 200, "desc")
+
+
+def test_vacancy_comparison_edge_cases():
+    v1 = Vacancy("A", "url1", 100, 200, "desc")
+    v2 = Vacancy("B", "url2", 100, 200, "desc")
+    assert not (v1 > v2)
+    assert not (v1 < v2)
+
+
+def test_cast_to_object_list_empty_salary():
+    data = [{
+        "name": "Test", "alternate_url":
+        "url", "salary": None, "snippet": {"requirement": ""}
+    }]
+    vacancies = Vacancy.cast_to_object_list(data)
+    assert vacancies[0].salary_from == 0
+    assert vacancies[0].salary_to == 0
+
+
 def test_vacancy_creation():
     vacancy = Vacancy(
         title='Developer',

@@ -15,7 +15,7 @@ def user_interaction():
 
     # Сохранение результатов
     for vac in vacancy_objects:
-        storage.add_vacancy(vac.__dict__)
+        storage.add_vacancy(vac.to_dict())
 
     # Фильтрация и сортировка
     top_n = int(input("Введите количество вакансий для вывода: "))

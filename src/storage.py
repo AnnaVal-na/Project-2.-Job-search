@@ -51,7 +51,20 @@ class JSONStorage(DataStorage):
     def get_vacancies(self, criteria: Optional[Dict] = None) -> List[Dict]:
         """Получение вакансий по критериям"""
         data = self.__read_data()
+        if criteria:
+            # Фильтрация данных по критериям
+            filtered_data = []
+            for vacancy in data:
+                match = True
+                for key, value in criteria.items():
+                    if vacancy.get(key) != value:
+                        match = False
+                        break
+                if match:
+                    filtered_data.append(vacancy)
+            return filtered_data
         return data
+
 
     def delete_vacancy(self, vacancy: Dict) -> None:
         """Удаление вакансии из файла"""
