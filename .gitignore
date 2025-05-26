@@ -19,3 +19,15 @@ dist/
 *.pyc
 __pycache__/
 .idea/
+# Дополнения
+db/config.ini
+*.log
+*.sqlite
+*.pyc
+__pycache__
+env/
+.data
+*.db
+*.sqlite3
+*.log
+*.json

@@ -65,7 +65,6 @@ class JSONStorage(DataStorage):
             return filtered_data
         return data
 
-
     def delete_vacancy(self, vacancy: Dict) -> None:
         """Удаление вакансии из файла"""
         data = self.__read_data()

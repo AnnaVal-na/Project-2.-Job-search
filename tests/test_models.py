@@ -1,5 +1,30 @@
 import pytest
 from src.models import Vacancy
+from dataclasses import dataclass
+from functools import total_ordering
+from typing import List, Dict
+
+@total_ordering
+@dataclass
+class Vacancy:
+    """Класс вакансии с поддержкой сравнения"""
+    id: str
+    title: str
+    url: str
+    salary_from: int
+    salary_to: int
+    employer_id: str
+    description: str
+
+    def __lt__(self, other: 'Vacancy') -> bool:
+        """Сравнение по минимальной зарплате"""
+        return self.salary_from < other.salary_from
+
+    def __eq__(self, other: object) -> bool:
+        """Проверка равенства вакансий"""
+        if not isinstance(other, Vacancy):
+            return NotImplemented
+        return self.salary_from == other.salary_from
 
 
 def test_to_dict():
@@ -88,3 +113,19 @@ def test_cast_to_object_list():
     vacancies = Vacancy.cast_to_object_list(test_data)
     assert len(vacancies) == 1
     assert vacancies[0].title == 'Python Dev'
+
+@dataclass
+class Employer:
+    id: str
+    name: str
+    url: str
+    description: str
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'Employer':
+        return cls(
+            id=data['id'],
+            name=data['name'],
+            url=data['alternate_url'],
+            description=data.get('description', '')
+        )

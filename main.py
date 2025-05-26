@@ -1,40 +1,59 @@
+from src.database import DBManager
 from src.api import HeadHunterAPI
-from src.models import Vacancy
-from src.storage import JSONStorage
-from src.utils import filter_vacancies, sort_vacancies, get_top_vacancies
+from src.models import Employer
 
+def initialize_database():
+    db = DBManager()
+    db.create_tables()
+    return db
+
+def load_data_to_db(db: DBManager):
+    hh_api = HeadHunterAPI()
+    company_ids = [
+        '15478', '1740', '78638', '908583', '1455', '1122462', '4934', '641093', '358288', '10506'
+    ]  # 10+ company IDs
+    for company_id in company_ids:
+        employer_data = hh_api.get_employer(company_id)
+        employer = Employer.from_dict(employer_data)
+        db.insert_employer(employer)
+        vacancies_data = hh_api.get_employer_vacancies(company_id)
+        for vacancy in Vacancy.cast_to_object_list(vacancies_data):
+            db.insert_vacancy(vacancy)
 
 def user_interaction():
-    """Функция для взаимодействия с пользователем"""
-    hh_api = HeadHunterAPI()
-    storage = JSONStorage()
+    db = DBManager()
+    while True:
+        print("\n--- Меню ---")
+        print("1. Компании и количество вакансий")
+        print("2. Все вакансии")
+        print("3. Средняя зарплата")
+        print("4. Вакансии с зарплатой выше средней")
+        print("5. Поиск вакансий по ключевому слову")
+        print("0. Выход")
+        choice = input("Выберите действие: ")
 
-    query = input("Введите поисковый запрос: ")
-    vacancies = hh_api.get_vacancies(query)
-    vacancy_objects = Vacancy.cast_to_object_list(vacancies)
-
-    # Сохранение результатов
-    for vac in vacancy_objects:
-        storage.add_vacancy(vac.to_dict())
-
-    # Фильтрация и сортировка
-    top_n = int(input("Введите количество вакансий для вывода: "))
-    keywords = input("Введите ключевые слова через пробел: ").split()
-
-    filtered = filter_vacancies(vacancy_objects, keywords)
-    sorted_vacs = sort_vacancies(filtered)
-    top_vacs = get_top_vacancies(sorted_vacs, top_n)
-
-    # Вывод результатов
-    for idx, vac in enumerate(top_vacs, 1):
-        print(f"""
-        {idx}. {vac.title}
-        Зарплата: {vac.salary_from} - {vac.salary_to}
-        Описание: {vac.description}
-        Ссылка: {vac.url}
-        {'-' * 50}
-        """)
-
+        if choice == '1':
+            for name, count in db.get_companies_and_vacancies_count():
+                print(f"{name}: {count} вакансий")
+        elif choice == '2':
+            for vac in db.get_all_vacancies():
+                print(f"{vac[0]} - {vac[1]}: {vac[2]}-{vac[3]} {vac[4]}")
+        elif choice == '3':
+            print(f"Средняя зарплата: {db.get_avg_salary():.2f}")
+        elif choice == '4':
+            for vac in db.get_vacancies_with_higher_salary():
+                print(f"{vac[0]} - {vac[1]}: {vac[2]}-{vac[3]} {vac[4]}")
+        elif choice == '5':
+            keyword = input("Введите ключевое слово: ")
+            for vac in db.get_vacancies_with_keyword(keyword):
+                print(f"{vac[0]} - {vac[1]}: {vac[2]}-{vac[3]} {vac[4]}")
+        elif choice == '0':
+            break
+        else:
+            print("Неверный выбор. Попробуйте снова.")
 
 if __name__ == "__main__":
+    db = initialize_database()
+    # Uncomment to reload data (for testing)
+    # load_data_to_db(db)
     user_interaction()
