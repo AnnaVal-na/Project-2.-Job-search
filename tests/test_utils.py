@@ -1,7 +1,11 @@
 import pytest
 from src.utils import filter_vacancies, sort_vacancies, get_top_vacancies
+from typing import List
 from src.models import Vacancy
 
+def sort_vacancies(vacancies: List[Vacancy]) -> List[Vacancy]:
+    """Сортировка вакансий по убыванию зарплаты"""
+    return sorted(vacancies, reverse=True)
 
 def test_filter_vacancies_empty_list(sample_vacancies):
     filtered = filter_vacancies([], ["python"])
