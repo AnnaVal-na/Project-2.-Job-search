@@ -1,17 +1,19 @@
 from src.database import DBManager
 from src.api import HeadHunterAPI
-from src.models import Employer
+from src.models import Employer, Vacancy
 
 def initialize_database():
+    """Инициализация базы данных"""
     db = DBManager()
     db.create_tables()
     return db
 
 def load_data_to_db(db: DBManager):
+    """Загрузка данных в базу"""
     hh_api = HeadHunterAPI()
     company_ids = [
         '15478', '1740', '78638', '908583', '1455', '1122462', '4934', '641093', '358288', '10506'
-    ]  # 10+ company IDs
+    ]
     for company_id in company_ids:
         employer_data = hh_api.get_employer(company_id)
         employer = Employer.from_dict(employer_data)
@@ -21,6 +23,7 @@ def load_data_to_db(db: DBManager):
             db.insert_vacancy(vacancy)
 
 def user_interaction():
+    """Функция взаимодействия с пользователем"""
     db = DBManager()
     while True:
         print("\n--- Меню ---")
@@ -54,6 +57,6 @@ def user_interaction():
 
 if __name__ == "__main__":
     db = initialize_database()
-    # Uncomment to reload data (for testing)
+    # Закомментировано для тестирования
     # load_data_to_db(db)
     user_interaction()

@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 
 @dataclass
 class Employer:
+    """Класс для представления работодателя"""
     id: str
     name: str
     url: str
@@ -11,6 +12,7 @@ class Employer:
 
     @classmethod
     def from_dict(cls, data: Dict) -> 'Employer':
+        """Создание объекта Employer из словаря"""
         return cls(
             id=data['id'],
             name=data['name'],
@@ -21,6 +23,7 @@ class Employer:
 
 @dataclass
 class Vacancy:
+    """Класс для представления вакансии"""
     id: str
     title: str
     url: str
@@ -31,6 +34,7 @@ class Vacancy:
 
     @classmethod
     def cast_to_object_list(cls, data: List[Dict]) -> List['Vacancy']:
+        """Преобразование списка словарей в список объектов Vacancy"""
         vacancies = []
         for item in data:
             salary = item.get('salary', {}) or {}

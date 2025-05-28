@@ -66,6 +66,8 @@ def get_top_vacancies(
     :return: Список топ N вакансий
     """
     if n <= 0:
-        raise ValueError("Количество вакансий должно быть положительным числом")
+        raise ValueError(
+            "Количество вакансий должно быть положительным числом"
+        )
 
     return vacancies[:n]
